@@ -35,7 +35,7 @@ project/
 ## Screenshots
 
 - Home page
-  ![Home page ](ScreenShots/Home-page.png)
+  (ScreenShots/Home-page.png)
   
 - Applicants account
   ![Display of all products](ScreenShots/employee-profile.png)
