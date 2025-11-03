@@ -35,16 +35,16 @@ project/
 ## Screenshots
 
 - Home page
-  (ScreenShots/Home-page.png)
+  ![Home page ](ScreenShots/Home-page.png)
   
 - Applicants account
-  ![Display of all products](ScreenShots/employee-profile.png)
+  ![Applicant's account](ScreenShots/employee-profile.png)
   
 - Applied jobs
-  ![User account](ScreenShots/applied-jobs.png)
+  ![List of job applications applicant applied for](ScreenShots/applied-jobs.png)
   
 - Employer account
-  ![Cart items](ScreenShots/employer-profile.png)
+  ![Employer' account](ScreenShots/employer-profile.png)
   
 - List of applicants
-  ![Product detail](ScreenShots/Applicant-list.png)
+  ![List of applicants who applied for job](ScreenShots/Applicant-list.png)
