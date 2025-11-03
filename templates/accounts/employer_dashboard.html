@@ -1,0 +1,166 @@
+{# accounts/employer_dashboard.html #}
+{% extends 'base.html' %}
+
+{% block title %}Employer Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4" style="max-width: 800px;">
+
+  {# ================= COMPANY HEADER CARD ================= #}
+  <div class="card mb-3 p-3">
+    <div class="d-flex justify-content-between align-items-start">
+      <div class="d-flex align-items-center">
+        {% if profile and profile.company_logo %}
+          <img src="{{ profile.company_logo.url }}" class="me-3 rounded-circle" style="width:80px;height:80px;object-fit:cover;">
+        {% else %}
+          <div class="me-3 rounded-circle bg-light" style="width:80px;height:80px;"></div>
+        {% endif %}
+
+        <div>
+          <h4 class="mb-0">{{ profile.company_name|default:"Company Name" }}</h4>
+          <p class="text-muted mb-0">{{ profile.company_location|default:"Location" }}</p>
+        </div>
+      </div>
+
+      <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editTopModal">
+        ✏️
+      </button>
+    </div>
+  </div>
+
+  {# ================= COMPANY DESCRIPTION CARD ================= #}
+  <div class="card mb-3 p-3">
+    <div class="d-flex justify-content-between">
+      <h5 class="mb-0">Company Description</h5>
+      <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editDescriptionModal">
+        ✏️
+      </button>
+    </div>
+    <p class="mt-2 mb-0">
+      {{ profile.company_description|default:"Add a description about your company." }}
+    </p>
+  </div>
+
+  {# ================= JOB POSTINGS SECTION ================= #}
+  <div class="card mb-3 p-3">
+    <div class="d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Job Postings</h5>
+      <a href="{% url 'jobs:create_job' %}" class="btn btn-sm btn-primary">+ Add Job</a>
+    </div>
+
+    <div class="mt-3">
+      {% if profile and profile.jobs.all %}
+        {% for job in profile.jobs.all %}
+          <div class="card mb-2 p-2">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <div class="fw-bold">{{ job.title }}</div>
+                <div class="small text-muted">{{ job.employer.company_name }}</div>
+                <div class="small text-muted mt-1">
+                  📍 {{ job.location }} &nbsp; • &nbsp; 💰 {{ job.salary }}
+                </div>
+              </div>
+
+              <div class="d-flex gap-2">
+                <a href="{% url 'jobs:job_applicants' job.id %}" class="btn btn-sm btn-outline-primary">
+                  Applicants
+                  {% with count=job.applications.count %}
+                    {% if count > 0 %}
+                      <span class="badge bg-danger ms-1">{{ count }}</span>
+                    {% endif %}
+                  {% endwith %}
+                </a>
+
+                <form method="post" action="{% url 'jobs:delete_job' job.id %}" style="display:inline;">
+                  {% csrf_token %}
+                  <button class="btn btn-sm btn-outline-danger" type="submit" onclick="return confirm('Delete this job?')">
+                    Delete
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p class="text-muted">No job postings yet.</p>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+
+
+{# ==================== MODALS ==================== #}
+
+<!-- Edit Company Info Modal -->
+<div class="modal fade" id="editTopModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="topForm" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title">Edit Company Info</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Logo</label>
+            <input type="file" name="company_logo" class="form-control">
+            {% if profile.company_logo %}
+              <div class="form-check mt-1">
+                <input class="form-check-input" type="checkbox" name="remove_logo" id="removeLogo">
+                <label class="form-check-label" for="removeLogo">Remove current logo</label>
+              </div>
+              <img src="{{ profile.company_logo.url }}" class="mt-2 rounded" style="width:50px;height:50px;object-fit:cover;">
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Company Name</label>
+            <input type="text" name="company_name" value="{{ profile.company_name }}" class="form-control">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Location</label>
+            <input type="text" name="company_location" value="{{ profile.company_location }}" class="form-control">
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Description Modal -->
+<div class="modal fade" id="editDescriptionModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="descForm" method="post">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title">Edit Description</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea name="company_description" class="form-control" rows="4">{{ profile.company_description }}</textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

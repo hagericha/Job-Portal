@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container" style="max-width:900px;">
+  <h3>My Applications</h3>
+
+  {% for app in applications %}
+    <div class="card mb-3 p-3">
+      <div class="fw-bold fs-5">{{ app.job.title }}</div>
+      <div class="small text-muted">{{ app.job.employer.company_name }}</div>
+      <div class="mt-1 small text-muted">📍 {{ app.job.location }} &nbsp; • &nbsp; 💰 {{ app.job.salary }}</div>
+      <div class="mt-2 small text-muted">Applied on: {{ app.created_at }}</div>
+      {% if app.message %}
+        <div class="mt-2"><strong>Message:</strong> <pre style="white-space:pre-wrap;">{{ app.message }}</pre></div>
+      {% endif %}
+    </div>
+  {% empty %}
+    <p class="text-muted">You have not applied to any jobs yet.</p>
+  {% endfor %}
+</div>
+{% endblock %}

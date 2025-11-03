@@ -1,0 +1,281 @@
+{% extends "base.html" %}
+{% block title %}Employee Dashboard{% endblock %}
+
+{% block content %}
+<div class="center-wrap">
+
+  <!-- Frame 1: Basic Info -->
+  <div class="card mb-3 p-3">
+    <div class="frame-header">
+      <div>
+        <div class="name-large">{{ profile.full_name|default:request.user.username }}</div>
+        <div class="info-line muted mt-2">
+          <span class="small-icon">📧</span>
+          <span>{{ request.user.email }}</span>
+        </div>
+        <div class="info-line muted mt-1">
+          <span class="small-icon">📱</span>
+          <span>{{ profile.mobile|default:"Not set" }}</span>
+        </div>
+        <div class="info-line muted mt-1">
+          <span class="small-icon">📍</span>
+          <span>{{ profile.location|default:"Not set" }}</span>
+        </div>
+      </div>
+      <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editTopModal">✏️</button>
+    </div>
+  </div>
+
+  <!-- Frame 2: Profile Summary -->
+  <div class="card mb-3 p-3">
+    <div class="frame-header">
+      <h5 class="mb-0">Profile Summary</h5>
+      <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editSummaryModal">✏️</button>
+    </div>
+    <p class="mt-2">{{ profile.summary|default:"Add a short summary about yourself." }}</p>
+  </div>
+
+  <!-- Frame 3: Resume -->
+  <div class="card mb-3 p-3">
+    <div class="frame-header">
+      <h5 class="mb-0">Resume</h5>
+      <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editResumeModal">✏️</button>
+    </div>
+    <div class="mt-2">
+      {% if profile.resume %}
+        <p>Uploaded: <a href="{{ profile.resume.url }}" target="_blank">{{ profile.resume.name|slice:"-40:" }}</a></p>
+      {% else %}
+        <p class="muted">No resume uploaded.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Frame 4: Skills -->
+  <div class="card mb-3 p-3">
+    <div class="frame-header">
+      <h5 class="mb-0">Skills</h5>
+      <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editSkillsModal">✏️</button>
+    </div>
+    <div class="mt-2">
+      {% if skills_list %}
+        {% for skill in skills_list %}
+          <span class="badge bg-secondary me-1">{{ skill }}</span>
+        {% endfor %}
+      {% else %}
+        <p class="muted">Add your skills (comma separated)</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Frame 5: Education -->
+  <div class="card mb-3 p-3">
+    <div class="frame-header">
+      <h5 class="mb-0">Education</h5>
+      <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editEducationModal">✏️</button>
+    </div>
+    <div class="mt-2">
+      {% if profile.education %}
+        <pre style="white-space:pre-wrap;">{{ profile.education }}</pre>
+      {% else %}
+        <p class="muted">Add your education (one per line)</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Frame 6: Projects -->
+  <div class="card mb-3 p-3">
+    <div class="frame-header">
+      <h5 class="mb-0">Projects</h5>
+      <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editProjectsModal">✏️</button>
+    </div>
+    <div class="mt-2">
+      {% if profile.projects %}
+        <pre style="white-space:pre-wrap;">{{ profile.projects }}</pre>
+      {% else %}
+        <p class="muted">Add your projects (one per line)</p>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+
+  <!-- ===========================
+       Modals (all submit to this page)
+       =========================== -->
+
+  <!-- Top Modal: name / mobile / location -->
+  <div class="modal fade" id="editTopModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="modal-header">
+            <h5 class="modal-title">Edit Basic Info</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Full name</label>
+              <input type="text" name="full_name" class="form-control" value="{{ profile.full_name }}">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Mobile</label>
+              <input type="text" name="mobile" class="form-control" value="{{ profile.mobile }}">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Location</label>
+              <input type="text" name="location" class="form-control" value="{{ profile.location }}">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Modal -->
+  <div class="modal fade" id="editSummaryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form method="post">
+          {% csrf_token %}
+          <div class="modal-header">
+            <h5 class="modal-title">Edit Profile Summary</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <textarea name="summary" class="form-control">{{ profile.summary }}</textarea>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resume Modal -->
+  <div class="modal fade" id="editResumeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="modal-header">
+            <h5 class="modal-title">Upload / Remove Resume</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Resume (PDF / DOC)</label>
+              <input type="file" name="resume" class="form-control">
+            </div>
+            {% if profile.resume %}
+              <div class="form-check mt-2">
+                <input class="form-check-input" type="checkbox" name="remove_resume" id="removeResume">
+                <label class="form-check-label" for="removeResume">Remove current resume</label>
+              </div>
+              <div class="mt-2">
+                <small>Current: <a href="{{ profile.resume.url }}" target="_blank">{{ profile.resume.name|slice:"-40:" }}</a></small>
+              </div>
+            {% endif %}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Skills Modal -->
+  <div class="modal fade" id="editSkillsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form method="post">
+          {% csrf_token %}
+          <div class="modal-header">
+            <h5 class="modal-title">Edit Skills</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <small class="text-muted">Enter skills separated by commas (e.g. Python, Django, SQL)</small>
+            <textarea name="skills" class="form-control mt-2">{{ profile.skills }}</textarea>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Education Modal -->
+  <div class="modal fade" id="editEducationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form method="post">
+          {% csrf_token %}
+          <div class="modal-header">
+            <h5 class="modal-title">Edit Education</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <small class="text-muted">One education entry per line (degree • institution • year)</small>
+            <textarea name="education" class="form-control mt-2">{{ profile.education }}</textarea>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Projects Modal -->
+  <div class="modal fade" id="editProjectsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form method="post">
+          {% csrf_token %}
+          <div class="modal-header">
+            <h5 class="modal-title">Edit Projects</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <small class="text-muted">One project entry per line (title • short description)</small>
+            <textarea name="projects" class="form-control mt-2">{{ profile.projects }}</textarea>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
+{% endblock %}
+
+{% block head %}
+<style>
+  body { background:#f6f6f6; font-family: Arial, sans-serif; }
+  .center-wrap { max-width: 800px; margin: 30px auto; }
+  .card { border-radius: 10px; }
+  .frame-header { display:flex; justify-content:space-between; align-items:center; }
+  .name-large { font-size: 1.6rem; font-weight:600; }
+  .muted { color:#666; }
+  .info-line { display:flex; gap:8px; align-items:center; }
+  .small-icon { width:18px; height:18px; display:inline-block; text-align:center; }
+  textarea.form-control { min-height: 120px; }
+</style>
+{% endblock %}
+

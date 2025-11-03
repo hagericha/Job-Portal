@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container" style="max-width:900px;">
+  <h3>Applicants for: {{ job.title }}</h3>
+  <p class="text-muted">{{ job.employer.company_name }} — {{ job.location }}</p>
+
+  {% for app in applicants %}
+    {% with u=app.applicant %}
+    <div class="card mb-3 p-3">
+      <div class="d-flex justify-content-between">
+        <div>
+          <div class="fw-bold">{{ u.get_full_name|default:u.username }}</div>
+          <div class="small text-muted">📧 {{ u.email }}</div>
+          <div class="small text-muted">📍 {{ u.employeeprofile.location|default:"Not set" }}</div>
+          <div class="small text-muted">📱 {{ u.employeeprofile.mobile|default:"Not set" }}</div>
+        </div>
+
+        <div class="text-end">
+          {% if u.employeeprofile.resume %}
+            <a class="btn btn-sm btn-outline-primary" href="{{ u.employeeprofile.resume.url }}" target="_blank">View Resume</a>
+          {% else %}
+            <div class="small text-muted">No resume</div>
+          {% endif %}
+          <div class="small text-muted mt-2">Applied: {{ app.created_at }}</div>
+        </div>
+      </div>
+
+      {% if app.message %}
+        <div class="mt-2"><strong>Message:</strong> <pre style="white-space:pre-wrap;">{{ app.message }}</pre></div>
+      {% endif %}
+
+    </div>
+    {% endwith %}
+  {% empty %}
+    <p class="text-muted">No applicants yet.</p>
+  {% endfor %}
+</div>
+{% endblock %}

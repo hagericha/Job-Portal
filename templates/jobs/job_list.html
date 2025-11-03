@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container" style="max-width:900px;">
+  <h3 class="mb-3">Latest Jobs</h3>
+
+  {% for job in jobs %}
+    <div class="card mb-3 p-3">
+      <div class="fw-bold fs-5">{{ job.title }}</div>
+      <div class="small text-muted">{{ job.employer.company_name }}</div>
+      <div class="mt-1 small text-muted">📍 {{ job.location }} &nbsp; • &nbsp; 💰 {{ job.salary }}</div>
+      <div class="mt-2">
+        <form method="post" action="{% url 'jobs:apply_job' job.id %}" style="display:inline;">
+          {% csrf_token %}
+          <button class="btn btn-sm btn-outline-primary" type="submit">Apply</button>
+        </form>
+
+      </div>
+    </div>
+  {% empty %}
+    <p class="text-muted">No jobs posted yet.</p>
+  {% endfor %}
+</div>
+{% endblock %}
